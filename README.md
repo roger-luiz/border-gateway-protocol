@@ -148,3 +148,135 @@ R1 anuncia a rede `203.0.113.0/24` para R2.
 - **BGP4 - Inter-Domain Routing in the Internet** (Livro - Halabi)
 - **Labs práticos**: GNS3, EVE-NG, Huawei eNSP, ou roteadores reais (ex: Mikrotik, Huawei, Cisco).
 - Sites como [bgp.he.net](https://bgp.he.net/) e [Looking Glass](https://www.nanog.org/resources/looking-glass/) para ver o BGP em ação.
+
+## BGP no Mikrotik
+
+Para essa documentação iremos usar a topologia R1 <> R2
+
+<p align="center">
+  <img src="images/1.png"/>
+</p>
+
+Para fecharmos uma seção BGP, será necessário um IP e um ASN, nesse template de configuração iremos usar uma VLAN.
+
+Informações necessárias para fecharmos nosa seção:
+
+R1:
+VLAN: 10
+IP VLAN: 10.200.200.1/30
+ASN: 65001
+
+R2:
+VLAN: 10
+IP VLAN: 10.200.200.2/30
+ASN: 65002
+
+Note-se que o IP e o ASN usado são privados, em um ambiente real ambos ASNs e IPs usados serão públicos.
+
+### Fechando seção
+
+Crie a vlan 10 adicionando ela a interface ether2 no roteador R1
+
+<p align="center">
+  <img src="images/2.png"/>
+</p>
+
+Adicione IP a vlan
+
+<p align="center">
+  <img src="images/3.png"/>
+</p>
+
+Faço o mesmo com o roteador R2
+
+<p align="center">
+  <img src="images/4.png"/>
+</p>
+
+Verifique se ambos os roteadores tem ping entre si
+
+<p align="center">
+  <img src="images/5.png"/>
+</p>
+
+Nossos roteadores já estão se comunincando, agora iremos fechar a seção BGP (Routing > BGP)
+
+R1:
+
+<p align="center">
+  <img src="images/6.png"/>
+</p>
+
+R2:
+
+<p align="center">
+  <img src="images/7.png"/>
+</p>
+
+Após configurar nosso ASN e IP em casa roteador basta ir na aba "Sessions" para saber se conectou e qual estado da conexão
+
+<p align="center">
+  <img src="images/8.png"/>
+</p>
+
+Veja que nossa conexão está como "Estabelecida", o que significa que deu certo!
+
+### Enviando rota default
+
+Veja que na nossa topologia, o Roteador R1 recebe um link, e ele tem ping para internet
+
+<p align="center">
+  <img src="images/9.png"/>
+</p>
+
+Diferente do nosso R2, que não tem ping para internet pois não tem rota default
+
+<p align="center">
+  <img src="images/10.png"/>
+</p>
+
+Na versão 7 do mikrotik temos uma forma muito simples de enviar a rota default, basta ir em (Routing > BGP, Selecionar a conexão > Extra)
+
+<p align="center">
+  <img src="images/11.png"/>
+</p>
+
+Ao fazer isso nosso roteador R2 irá receber a rota default e consequentemente ter ping para fora, lembrando que nosso R1 está fazendo NAT
+
+<p align="center">
+  <img src="images/12.png"/>
+</p>
+
+### Anunciando prefixos
+
+Na versão V7 do mikrotik para anunciarmos um prefixo iremos precisar criar uma address-list com os blocos que iremos anunciar
+
+<p align="center">
+  <img src="images/13.png"/>
+</p>
+
+Logos após iremos adicionar a nossa tabela de roteamento para que seja possível anunciar o bloco
+
+<p align="center">
+  <img src="images/14.png"/>
+</p>
+
+Por fim iremos informar qual bloco será anunciado
+
+<p align="center">
+  <img src="images/15.png"/>
+</p>
+
+Podemos conferir no roteador R2 se recebos o bloco
+
+<p align="center">
+  <img src="images/16.png"/>
+</p>
+
+Caso queria anuciar um bloco do roteador R2 para o roteador 1 basta seguir o mesma lógica: Criar a address list, adiconala a tabela de roteamento em blackhole e dizer na aba de filtros qual bloco será anunciado.
+
+### Filtros de roteamento
+
+<p align="center">
+  <img src="images/0.png"/>
+</p>
