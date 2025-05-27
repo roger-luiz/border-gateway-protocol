@@ -280,5 +280,5 @@ Veja que nossa conexão está como "Estabelecida", o que significa que deu certo
 ### Filtros de roteamento
 
 <p align="center">
-  <img src="images/0.png"/>
+  <img src="images/0.png" width="400px"/>
 </p>
